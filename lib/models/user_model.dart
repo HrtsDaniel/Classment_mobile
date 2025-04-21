@@ -13,7 +13,7 @@ class User {
   final int roleId;
 
   User({
-    this.userId,
+    required this.userId,
     required this.userName,
     required this.userLastname,
     required this.userDocumentType,
@@ -46,18 +46,18 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      userId: json['user_id'],
-      userName: json['user_name'],
-      userLastname: json['user_lastname'],
-      userDocumentType: json['user_document_type'],
-      userDocument: json['user_document'],
-      userEmail: json['user_email'],
-      userPassword: json['user_password'],
-      userPhone: json['user_phone'].toString(),
-      userImage: json['user_image'],
-      userBirth: json['user_birth'],
-      userState: json['user_state'],
-      roleId: json['role_id'],
+      userId: json['user_id'] ?? '',
+      userName: json['user_name'] ?? '',
+      userLastname: json['user_lastname'] ?? '',
+      userDocumentType: json['user_document_type'] ?? '',
+      userDocument: json['user_document'] ?? '',
+      userEmail: json['user_email'] ?? '',
+      userPassword: json['user_password'] ?? '',
+      userPhone: json['user_phone'].toString() ?? '',
+      userImage: json['user_image'] ?? '',
+      userBirth: json['user_birth'] ?? '',
+      userState: json['user_state'] ?? '',
+      roleId: json['role_id'] ?? 1,
     );
   }
 }

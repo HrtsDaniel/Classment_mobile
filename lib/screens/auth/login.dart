@@ -150,17 +150,18 @@ class _LoginUsuarioState extends State<LoginUsuario> {
 
                   if (email.isEmpty || password.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Campos vacíos')),
+                      const SnackBar(content: Text('Por favor complete todos los campos')),
                     );
                     return;
                   }
 
-                  final token = await ApiService.loginUser(email, password);
+                  final result = await ApiService.loginUser(email, password);
 
-                  if (token != null) {
+                  if (result != null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Inicio de sesión exitoso')),
                     );
+
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (_) => HomeScreen()),
@@ -185,19 +186,21 @@ class _LoginUsuarioState extends State<LoginUsuario> {
                       GoogleFonts.roboto(color: Colors.grey[400], fontSize: 12),
                 ),
                 const SizedBox(width: 6),
-                GestureDetector(onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => RegistroUsuario()),
-                  );
-                },
-                child: Text(
-                  'Regístrate',
-                  style: GoogleFonts.roboto(
-                    color: const Color(0xFFFDD835),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => RegistroUsuario()),
+                    );
+                  },
+                  child: Text(
+                    'Regístrate',
+                    style: GoogleFonts.roboto(
+                      color: const Color(0xFFFDD835),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
                 )
               ],
             ),

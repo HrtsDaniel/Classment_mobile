@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 
@@ -15,21 +16,40 @@ class UserController extends ChangeNotifier {
   }
 
   Future<bool> login(String email, String password) async {
-    final token = await ApiService.loginUser(email, password);
+    final user = await ApiService.loginUser(email, password);
 
-    if (token != null) {
-      final userData = await ApiService.validarToken(token);
-      if (userData != null) {
-        _user = User.fromJson(userData['user']);
-        _token = token;
-        notifyListeners();
-        return true;
-      }
+    if (user != null) {
+      _user = user;
+      final prefs = await SharedPreferences.getInstance();
+      _token = prefs.getString('token');
+      notifyListeners();
+      return true;
     }
     return false;
   }
 
-  void logout() {
+  Future loadCurrentUser() async {
+    final user = await ApiService.getCurrentUser();
+    if (user != null) {
+      _user = user;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> updateProfile(User updateUser) async {
+    final success = await ApiService.updateUserProfile(updateUser);
+    if (success) {
+      _user = updateUser;
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
+  void logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('user_data');
     _user = null;
     _token = null;
     notifyListeners();

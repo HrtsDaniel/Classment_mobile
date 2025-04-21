@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:classment_mobile/models/user_model.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -31,7 +32,7 @@ class ApiService {
     }
   }
 
-  static Future<String?> loginUser(String email, String password) async {
+  static Future<User?> loginUser(String email, String password) async {
     final url = Uri.parse('$_baseUrl/api/login');
 
     final Map<String, dynamic> datosLogin = {
@@ -50,23 +51,41 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final token = data['data']['token'];
+        logger.i('Respuesta del login: $data');
+
+        final token = data['data']?['token']?.toString();
+
+        if (token == null || token.isEmpty) {
+          logger.e('Token inválido o ausente: $token');
+          return null;
+        }
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
-        logger.i('Token recibido: $token');
-        return token;
+
+        final user = await validarToken(token);
+        if (user != null) {
+          await prefs.setString('user_data', jsonEncode(user.toJson()));
+          return user;
+        }
       } else {
-        logger.w('Error en login: ${response.body}');
-        return null;
+        logger.w(
+            'Error en respuesta login (${response.statusCode}): ${response.body}');
       }
+      return null;
     } catch (e) {
-      logger.e('Error en la solicitud: $e');
+      logger.e('Error en el login: $e');
       return null;
     }
   }
 
-  static Future<Map<String, dynamic>?> validarToken(String token) async {
-    final url = Uri.parse('$_baseUrl/api/users/auth/me');
+  static Future<User?> validarToken(String? token) async {
+    final url = Uri.parse('$_baseUrl/api/auth/me');
+
+    if (token == null) {
+      logger.i('Token es nulo en validarToken');
+      return null;
+    }
 
     try {
       final response = await http.get(
@@ -77,15 +96,88 @@ class ApiService {
         },
       );
 
+      logger.i('Respuesta validarToken e informacion: ${response.body}');
+
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        logger.w('Token inválido: ${response.body}');
+        final data = jsonDecode(response.body);
+
+        if (data['success'] == true && data['user'] != null) {
+          final dataUser = data['user'];
+
+          User user = User(
+            userId: dataUser['id'] ?? '',
+            userName: dataUser['name'] ?? 'Desconocido',
+            userLastname: dataUser['lastname'] ?? 'Desconocido',
+            userDocumentType: 'CC',
+            userDocument: dataUser['document'] ?? '',
+            userEmail: dataUser['email'] ?? '',
+            userPassword: '',
+            userPhone: dataUser['phone'] ?? '',
+            userImage: dataUser['image'] ?? '',
+            userBirth: dataUser['birthdate'] ?? '',
+            userState: 'activo',
+            roleId: dataUser['role'] ?? 1,
+          );
+          return user;
+        }
+      }
+      logger.w(
+          'Error validando token (${response.statusCode}): ${response.body}');
+      return null;
+    } catch (e) {
+      logger.e('Error en validarToken: $e');
+      return null;
+    }
+  }
+
+  static Future<User?> getCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userDataString = prefs.getString('user_data');
+
+    if (userDataString != null) {
+      try {
+        return User.fromJson(jsonDecode(userDataString));
+      } catch (e) {
+        logger.e('Error parseando user_data: $e');
         return null;
       }
+    }
+    return null;
+  }
+
+  static Future<bool> updateUserProfile(User user) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) return false;
+
+    final url = Uri.parse('$_baseUrl/api/users/${user.userId}');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'applicattion/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'user_name': user.userName,
+          'user_lastname': user.userLastname,
+          'user_phone': user.userPhone,
+          'user_email': user.userEmail,
+          'user_image': user.userImage
+        }),
+      );
+      if (response.statusCode == 200) {
+        await prefs.setString('user_data', jsonEncode(user.toJson()));
+        return true;
+      }
+      logger.w(
+          'Error actualizando perfil (${response.statusCode}): ${response.body}');
+      return false;
     } catch (e) {
-      logger.e('Error al validar token: $e');
-      return null;
+      logger.e('Error en updateUserProfile: $e');
+      return false;
     }
   }
 }
