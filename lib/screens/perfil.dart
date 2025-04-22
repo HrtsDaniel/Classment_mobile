@@ -508,22 +508,45 @@ class _PerfilState extends State<Perfil> {
   }
 
   void _deleteAccount() async {
-    // Aquí implementarías la lógica para eliminar la cuenta en tu backend
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
 
-    // Navegar al login
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => LoginUsuario()),
-      (route) => false,
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Tu cuenta ha sido eliminada'),
-        backgroundColor: Colors.red,
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: CircularProgressIndicator(
+          color: Colors.yellow,
+        ),
       ),
     );
+
+    final success = await ApiService.deleteAccount();
+
+    Navigator.pop(context);
+
+    if (success) {
+
+       final prefs = await SharedPreferences.getInstance();
+       await prefs.remove('token');
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => LoginUsuario()),
+        (route) => false,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tu cuenta ha sido eliminada'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error al eliminar cuenta.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

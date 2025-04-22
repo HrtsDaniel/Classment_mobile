@@ -180,4 +180,46 @@ class ApiService {
       return false;
     }
   }
+
+  static Future<bool> deleteAccount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final currentUser = await getCurrentUser();
+
+    if (token == null || currentUser == null) {
+      logger.e('No hay token o usuario para desactivar la cuenta');
+      return false;
+    }
+    final url = Uri.parse('$_baseUrl/api/users/${currentUser.userId}');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'user': {
+            'user_state': 'inactivo',
+          }
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        await prefs.remove('token');
+        await prefs.remove('user_data');
+        logger.i('Cuenta eliminada exitosamente');
+        return true;
+      } else {
+        logger.w(
+            'Error eliminando cuenta (${response.statusCode}): ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      logger.e('Error en deleteAccount: $e');
+      return false;
+    }
+  }
 }
