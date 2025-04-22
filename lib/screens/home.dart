@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/navbar.dart';
 import '../widgets/sidebar.dart';
+import 'package:classment_mobile/widgets/Card_School.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -131,6 +132,10 @@ class HomeScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 40),
+
+                        const FeaturedSchoolsSection(),
+
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
