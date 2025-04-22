@@ -21,14 +21,14 @@ class _FeaturedSchoolsSectionState extends State<FeaturedSchoolsSection>
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeIn,
       ),
     );
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.5, 0.0),
       end: Offset.zero,
@@ -38,7 +38,7 @@ class _FeaturedSchoolsSectionState extends State<FeaturedSchoolsSection>
         curve: Curves.easeOut,
       ),
     );
-    
+
     _animationController.forward();
   }
 
@@ -129,7 +129,8 @@ class SchoolCard extends StatefulWidget {
   State<SchoolCard> createState() => _SchoolCardState();
 }
 
-class _SchoolCardState extends State<SchoolCard> with SingleTickerProviderStateMixin {
+class _SchoolCardState extends State<SchoolCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _heartController;
   late Animation<double> _heartAnimation;
   double _scale = 1.0;
@@ -142,7 +143,7 @@ class _SchoolCardState extends State<SchoolCard> with SingleTickerProviderStateM
       vsync: this,
       duration: const Duration(milliseconds: 800),
     )..repeat(reverse: true);
-    
+
     _heartAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(
       CurvedAnimation(
         parent: _heartController,
@@ -236,14 +237,18 @@ class _SchoolCardState extends State<SchoolCard> with SingleTickerProviderStateM
                         alignment: Alignment.bottomRight,
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          transform: Matrix4.identity()..scale(_isHovered ? 1.05 : 1.0),
+                          transform: Matrix4.identity()
+                            ..scale(_isHovered ? 1.05 : 1.0),
                           child: ElevatedButton(
                             onPressed: () {
-                              // Acción para ver la escuela
+                              Navigator.pushNamed(
+                                context,
+                                '/escuelas',
+                              );
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: _isHovered 
-                                  ? Colors.yellow[700] 
+                              backgroundColor: _isHovered
+                                  ? Colors.yellow[700]
                                   : Colors.yellow,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
