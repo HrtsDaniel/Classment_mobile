@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:classment_mobile/widgets/sidebar.dart';
+import 'package:classment_mobile/widgets/navbar.dart';
 
 class Escuelas extends StatelessWidget {
   const Escuelas({super.key});
@@ -13,8 +14,7 @@ class Escuelas extends StatelessWidget {
       'school_address': 'Calle 123, Bogotá D.C',
       'school_email': 'danielbernal.04@gmail.com',
       'school_image':
-          'https://images.unsplash.com/photo-1637666133087-23b7138ea721?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-,
+          'https://images.unsplash.com/photo-1637666133087-23b7138ea721?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     },
     {
       'school_name': 'Soy Fitness',
@@ -39,56 +39,78 @@ class Escuelas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+      drawer: const SideBar(),
+      body: Stack(
+        children: [
+          // Fondo con gradiente
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.black, Color(0xFF1A1A1A)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+          
+          // Contenido principal
+          Column(
             children: [
-              Text(
-                'NUESTRAS ESCUELAS',
-                style: GoogleFonts.montserrat(
-                  color: Colors.yellow.shade600,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 2,
+              const CustomNavbar(height: 80),
+              
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24).copyWith(top: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'NUESTRAS ESCUELAS',
+                        style: GoogleFonts.montserrat(
+                          color: Colors.yellow.shade600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Explora centros de formación\ndeportiva destacados',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.montserrat(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          height: 1.3,
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+
+                      // Lista de escuelas
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isWide = constraints.maxWidth > 600;
+                          return Wrap(
+                            spacing: 16,
+                            runSpacing: 16,
+                            alignment: WrapAlignment.center,
+                            children: schools.map((school) {
+                              return SizedBox(
+                                width: isWide ? constraints.maxWidth / 2 - 20 : double.infinity,
+                                child: SchoolCard(school: school),
+                              );
+                            }).toList(),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 30),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 10),
-              Text(
-                'Explora centros de formación\ndeportiva destacados',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.montserrat(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  height: 1.3,
-                ),
-              ),
-              const SizedBox(height: 30),
-
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isWide = constraints.maxWidth > 600;
-
-                  return Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    alignment: WrapAlignment.center,
-                    children: schools.map((school) {
-                      return SizedBox(
-                        width: isWide ? constraints.maxWidth / 2 - 20 : double.infinity,
-                        child: SchoolCard(school: school),
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
-              const SizedBox(height: 30),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
