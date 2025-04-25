@@ -2,39 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:classment_mobile/widgets/sidebar.dart';
 import 'package:classment_mobile/widgets/navbar.dart';
+import 'package:classment_mobile/services/api_service.dart';
+import 'package:classment_mobile/models/school_model.dart';
 
-class Escuelas extends StatelessWidget {
+class Escuelas extends StatefulWidget {
   const Escuelas({super.key});
 
-  final List<Map<String, String>> schools = const [
-    {
-      'school_name': 'GO FIT',
-      'school_description': 'Entrenamiento y acondicionamiento físico.',
-      'school_phone': '3124567890',
-      'school_address': 'Calle 123, Bogotá D.C',
-      'school_email': 'danielbernal.04@gmail.com',
-      'school_image':
-          'https://images.unsplash.com/photo-1637666133087-23b7138ea721?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    },
-    {
-      'school_name': 'Soy Fitness',
-      'school_description': 'Yoga, Pilates y mas',
-      'school_phone': '9876543210',
-      'school_address': 'Avenida 456, primera de mayo con boyaca',
-      'school_email': 'soyfitness@gmail.com',
-      'school_image':
-          'https://media.istockphoto.com/id/1399212293/es/foto/clase-de-educaci%C3%B3n-f%C3%ADsica-y-entrenamiento-deportivo-en-bachillerato.jpg?s=612x612&w=0&k=20&c=3Q_1fKedbs-IQhtUNihpLox8OO_OCTLWrpQy39eH8gM=',
-    },
-    {
-      'school_name': 'Taekwondo',
-      'school_description': 'Cursos de taekwondo para todos los niveles',
-      'school_phone': '5555555555',
-      'school_address': 'Plaza Principal, Carrera 10 con circunvalar',
-      'school_email': 'taekwondo@gmail.com',
-      'school_image':
-          'https://media.istockphoto.com/id/1077629152/es/foto/hombre-y-mujer-taekwondo-combate.jpg?s=612x612&w=0&k=20&c=KEFFGcANJfl1G8OVzJ0HpqhNxlCJfC98ESjeuS7UeV8=',
-    },
-  ];
+  @override
+  State<Escuelas> createState() => _EscuelasState();
+}
+
+class _EscuelasState extends State<Escuelas> {
+  late Future<List<Escuela>> _escuelasFuture;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEscuelas();
+  }
+
+  Future<void> _fetchEscuelas() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final escuelas = await ApiService.getEscuelas();
+      setState(() {
+        _escuelasFuture = Future.value(escuelas);
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,52 +68,85 @@ class Escuelas extends StatelessWidget {
               const CustomNavbar(height: 80),
               
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24).copyWith(top: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'NUESTRAS ESCUELAS',
-                        style: GoogleFonts.montserrat(
-                          color: Colors.yellow.shade600,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 2,
+                child: RefreshIndicator(
+                  onRefresh: _fetchEscuelas,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 24).copyWith(top: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'NUESTRAS ESCUELAS',
+                          style: GoogleFonts.montserrat(
+                            color: Colors.yellow.shade600,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 2,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Explora centros de formación\ndeportiva destacados',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.montserrat(
-                          color: Colors.white,
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          height: 1.3,
+                        const SizedBox(height: 16),
+                        Text(
+                          'Explora centros de formación\ndeportiva destacados',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.montserrat(
+                            color: Colors.white,
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            height: 1.3,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 30),
+                        const SizedBox(height: 30),
 
-                      // Lista de escuelas
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final isWide = constraints.maxWidth > 600;
-                          return Wrap(
-                            spacing: 16,
-                            runSpacing: 16,
-                            alignment: WrapAlignment.center,
-                            children: schools.map((school) {
-                              return SizedBox(
-                                width: isWide ? constraints.maxWidth / 2 - 20 : double.infinity,
-                                child: SchoolCard(school: school),
-                              );
-                            }).toList(),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 30),
-                    ],
+                        // Manejo de estados
+                        if (_isLoading)
+                          const Center(child: CircularProgressIndicator(color: Colors.yellow))
+                        else if (_error != null)
+                          Center(
+                            child: Column(
+                              children: [
+                                const Icon(Icons.error_outline, color: Colors.red, size: 50),
+                                const SizedBox(height: 16),
+                                Text(
+                                  _error!,
+                                  style: const TextStyle(color: Colors.white),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: _fetchEscuelas,
+                                  child: const Text('Reintentar'),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          FutureBuilder<List<Escuela>>(
+                            future: _escuelasFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final isWide = constraints.maxWidth > 600;
+                                    return Wrap(
+                                      spacing: 16,
+                                      runSpacing: 16,
+                                      alignment: WrapAlignment.center,
+                                      children: snapshot.data!.map((escuela) {
+                                        return SizedBox(
+                                          width: isWide ? constraints.maxWidth / 2 - 20 : double.infinity,
+                                          child: SchoolCard(escuela: escuela),
+                                        );
+                                      }).toList(),
+                                    );
+                                  },
+                                );
+                              }
+                              return const SizedBox();
+                            },
+                          ),
+                        const SizedBox(height: 30),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -117,8 +159,8 @@ class Escuelas extends StatelessWidget {
 }
 
 class SchoolCard extends StatelessWidget {
-  final Map<String, String> school;
-  const SchoolCard({super.key, required this.school});
+  final Escuela escuela;
+  const SchoolCard({super.key, required this.escuela});
 
   @override
   Widget build(BuildContext context) {
@@ -139,11 +181,16 @@ class SchoolCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.network(
-              school['school_image']!,
+            child: Image.asset(
+              'assets${escuela.schoolImage}',
               height: 180,
               width: double.infinity,
               fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                height: 180,
+                color: Colors.grey[800],
+                child: const Center(child: Icon(Icons.broken_image, color: Colors.white)),
+              ),
             ),
           ),
           Padding(
@@ -152,7 +199,7 @@ class SchoolCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  school['school_name']!,
+                  escuela.schoolName,
                   style: GoogleFonts.montserrat(
                     color: Colors.yellow.shade600,
                     fontSize: 18,
@@ -161,7 +208,7 @@ class SchoolCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  school['school_description']!,
+                  escuela.schoolDescription,
                   style: GoogleFonts.lato(
                     color: Colors.white70,
                     fontSize: 14,
@@ -173,7 +220,7 @@ class SchoolCard extends StatelessWidget {
                     const Icon(Icons.phone, color: Colors.yellow, size: 16),
                     const SizedBox(width: 6),
                     Text(
-                      school['school_phone']!,
+                      escuela.schoolPhone,
                       style: GoogleFonts.roboto(color: Colors.white),
                     ),
                   ],
@@ -185,7 +232,7 @@ class SchoolCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        school['school_address']!,
+                        escuela.schoolAddress,
                         style: GoogleFonts.roboto(color: Colors.white),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -199,7 +246,7 @@ class SchoolCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        school['school_email']!,
+                        escuela.schoolEmail,
                         style: GoogleFonts.roboto(color: Colors.white),
                         overflow: TextOverflow.ellipsis,
                       ),

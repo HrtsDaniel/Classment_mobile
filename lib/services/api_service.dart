@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:classment_mobile/models/school_model.dart';
 import 'package:classment_mobile/models/user_model.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -222,4 +223,49 @@ class ApiService {
       return false;
     }
   }
+
+ static Future<List<Escuela>> getEscuelas() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  
+  if (token == null) {
+    throw 'No hay token de autenticación. Por favor inicie sesión.';
+  }
+
+  final url = Uri.parse('$_baseUrl/api/schools');
+
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    logger.i('Respuesta de /api/schools: ${response.statusCode}');
+    logger.v('Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      
+      if (data is List) {
+        return data.map((json) => Escuela.fromJson(json)).toList();
+      }
+      
+      if (data is Map && data['data'] is List) {
+        return (data['data'] as List).map((json) => Escuela.fromJson(json)).toList();
+      }
+      
+      throw 'Formato de respuesta no reconocido';
+    } else if (response.statusCode == 401) {
+      throw 'Sesión expirada. Por favor vuelva a iniciar sesión.';
+    } else {
+      throw 'Error al cargar escuelas: ${response.statusCode}';
+    }
+  } catch (e) {
+    logger.e('Error en getEscuelas', error: e);
+    rethrow;
+  }
+}
 }
