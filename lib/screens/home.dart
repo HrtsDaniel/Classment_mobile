@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/navbar.dart';
 import '../widgets/sidebar.dart';
 import 'package:classment_mobile/widgets/Card_School.dart';
+import 'package:classment_mobile/widgets/Card_courses.dart'; // Asegúrate de crear este archivo
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -133,9 +134,13 @@ class HomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 40),
 
+                        // Sección de escuelas destacadas
                         const FeaturedSchoolsSection(),
+                        const SizedBox(height: 40),
 
-                        const SizedBox(height: 20),
+                        // Nueva sección de cursos destacados
+                        const CoursesSection(),
+                        const SizedBox(height: 40),
                       ],
                     ),
                   ),
