@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:classment_mobile/models/curso_model.dart';
 import 'package:classment_mobile/models/school_model.dart';
 import 'package:classment_mobile/models/user_model.dart';
 import 'package:logger/logger.dart';
@@ -267,5 +268,69 @@ class ApiService {
     logger.e('Error en getEscuelas', error: e);
     rethrow;
   }
+ }
+
+ static Future<List<Course>> getCursos() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+  
+  if (token == null) {
+    throw 'No hay token de autenticación. Por favor inicie sesión.';
+  }
+
+  final url = Uri.parse('$_baseUrl/api/courses');
+
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    logger.i('Respuesta de /api/courses: ${response.statusCode}');
+    logger.v('Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final dynamic data = jsonDecode(response.body);
+      
+      if (data is List) {
+        return data.map((json) => Course.fromJson(json)).toList();
+      }
+      
+      else if (data is Map<String, dynamic> && data.containsKey('data') && data['data'] is List) {
+        final List<dynamic> cursosData = data['data'];
+        return cursosData.map((json) => Course.fromJson(json)).toList();
+      }
+      else if (data is Map<String, dynamic> && data.containsKey('data') && data['data'] is List) {
+        final List<dynamic> cursosData = data['data'];
+        return cursosData.map((json) => Course.fromJson(json)).toList();
+      }
+      
+      else if (data is Map<String, dynamic> && data.containsKey('courses') && data['courses'] is List) {
+        final List<dynamic> cursosData = data['courses'];
+        return cursosData.map((json) => Course.fromJson(json)).toList();
+      }
+      
+      logger.e('Estructura de respuesta no reconocida: $data');
+      throw 'Formato de respuesta no reconocido para cursos';
+    } else if (response.statusCode == 401) {
+      throw 'Sesión expirada. Por favor vuelva a iniciar sesión.';
+    } else {
+      throw 'Error al cargar cursos: ${response.statusCode}';
+    }
+  } catch (e) {
+    logger.e('Error en getCursos', error: e);
+    rethrow;
+  }
 }
+  static Future<Escuela> getEscuelaById(String id) async {
+    final response = await http.get(Uri.parse('$_baseUrl/escuelas/$id'));
+    if (response.statusCode == 200) {
+      return Escuela.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load escuela');
+    }
+  }
 }

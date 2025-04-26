@@ -28,4 +28,5 @@ flutter:
 
   assets:
     - assets/images/escuelas/
+    - assets/images/cursos/
    

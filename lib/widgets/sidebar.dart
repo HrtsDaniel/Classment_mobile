@@ -19,7 +19,7 @@ class SideBarState extends State<SideBar> {
     {"icon": Icons.home, "text": "INICIO", "page": const HomeScreen()},
     {"icon": Icons.person, "text": "PERFIL", "page": const Perfil()},
     {"icon": Icons.school, "text": "ESCUELAS", "page": const Escuelas()},
-    {"icon": Icons.book, "text": "CURSOS", "page": const Cursos()},
+    {"icon": Icons.book, "text": "CURSOS", "page": const CursosScreen()},
     {"icon": Icons.info, "text": "INFORMACIÓN"},
     {"icon": Icons.mail, "text": "CONTACTO"},
   ];
