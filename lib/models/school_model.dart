@@ -1,7 +1,9 @@
+import 'package:flutter/widgets.dart';
+
 class Escuela {
   final String schoolId;
   final String teacherId;
-  final String schoolName;
+  final String? schoolName;
   final String schoolDescription;
   final String schoolPhone;
   final String schoolAddress;
@@ -23,12 +25,24 @@ class Escuela {
     return Escuela(
       schoolId: json['school_id'],
       teacherId: json['teacher_id'],
-      schoolName: json['school_name'],
+      schoolName: json['school_name'] ?? '',
       schoolDescription: json['school_description'],
       schoolPhone: json['school_phone'].toString(),
       schoolAddress: json['school_address'],
       schoolImage: json['school_image'],
       schoolEmail: json['school_email'],
+    );
+  }
+}
+
+class EscuelaCurso {
+  final String schoolName;
+
+  EscuelaCurso({required this.schoolName});
+
+  factory EscuelaCurso.fromJson(Map<String, dynamic> json) {
+    return EscuelaCurso(
+      schoolName: json['school_name'] ?? 'Escuela no disponible',
     );
   }
 }

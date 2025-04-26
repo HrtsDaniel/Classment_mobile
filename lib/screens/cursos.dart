@@ -61,17 +61,17 @@ class _CursosScreenState extends State<CursosScreen> {
               ),
             ),
           ),
-          
+
           // Contenido principal
           Column(
             children: [
               const CustomNavbar(height: 80),
-              
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: _fetchCursos,
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24).copyWith(top: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 24)
+                        .copyWith(top: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -99,12 +99,15 @@ class _CursosScreenState extends State<CursosScreen> {
 
                         // Manejo de estados
                         if (_isLoading)
-                          const Center(child: CircularProgressIndicator(color: Colors.yellow))
+                          const Center(
+                              child: CircularProgressIndicator(
+                                  color: Colors.yellow))
                         else if (_error != null)
                           Center(
                             child: Column(
                               children: [
-                                const Icon(Icons.error_outline, color: Colors.red, size: 50),
+                                const Icon(Icons.error_outline,
+                                    color: Colors.red, size: 50),
                                 const SizedBox(height: 16),
                                 Text(
                                   _error!,
@@ -133,7 +136,9 @@ class _CursosScreenState extends State<CursosScreen> {
                                       alignment: WrapAlignment.center,
                                       children: snapshot.data!.map((curso) {
                                         return SizedBox(
-                                          width: isWide ? constraints.maxWidth / 2 - 20 : double.infinity,
+                                          width: isWide
+                                              ? constraints.maxWidth / 2 - 20
+                                              : double.infinity,
                                           child: CourseCard(curso: curso),
                                         );
                                       }).toList(),
@@ -158,9 +163,42 @@ class _CursosScreenState extends State<CursosScreen> {
   }
 }
 
-class CourseCard extends StatelessWidget {
+class CourseCard extends StatefulWidget {
   final Course curso;
   const CourseCard({super.key, required this.curso});
+
+  @override
+  State<CourseCard> createState() => _CourseCardState();
+}
+
+class _CourseCardState extends State<CourseCard> {
+  String? _schoolName;
+  bool _loadingSchool = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSchoolName();
+  }
+
+  Future<void> _fetchSchoolName() async {
+  print('Obteniendo escuela para el curso con ID: ${widget.curso.courseId}');
+  setState(() => _loadingSchool = true);
+  
+  try {
+    final escuela = await ApiService.getSchoolNameByCourseId(widget.curso.courseId);
+    setState(() {
+      _schoolName = escuela.schoolName;
+      _loadingSchool = false;
+    });
+  } catch (e) {
+    print('Error al obtener escuela: $e');
+    setState(() {
+      _schoolName = 'Desconocida';
+      _loadingSchool = false;
+    });
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -182,14 +220,15 @@ class CourseCard extends StatelessWidget {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: Image.asset(
-              'assets${curso.courseImage}',
+              'assets${widget.curso.courseImage}',
               height: 180,
               width: double.infinity,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(
                 height: 180,
                 color: Colors.grey[800],
-                child: const Center(child: Icon(Icons.broken_image, color: Colors.white)),
+                child: const Center(
+                    child: Icon(Icons.broken_image, color: Colors.white)),
               ),
             ),
           ),
@@ -203,7 +242,7 @@ class CourseCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        curso.courseName,
+                        widget.curso.courseName,
                         style: GoogleFonts.montserrat(
                           color: Colors.yellow.shade600,
                           fontSize: 18,
@@ -212,7 +251,7 @@ class CourseCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '\$${curso.coursePrice.toStringAsFixed(2)}',
+                      '\$${widget.curso.coursePrice.toStringAsFixed(2)}',
                       style: GoogleFonts.montserrat(
                         color: Colors.green[400],
                         fontSize: 16,
@@ -221,13 +260,44 @@ class CourseCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
+                // Nueva fila para el nombre de la escuela
+                if (_schoolName != null || _loadingSchool)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.school_outlined,
+                            color: Colors.yellow, size: 16),
+                        const SizedBox(width: 6),
+                        _loadingSchool
+                            ? const SizedBox(
+                                width: 100,
+                                child: LinearProgressIndicator(
+                                  color: Colors.yellow,
+                                  backgroundColor: Colors.grey,
+                                ),
+                              )
+                            : Expanded(
+                                child: Text(
+                                  _schoolName ?? '',
+                                  style: GoogleFonts.roboto(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                      ],
+                    ),
+                  ),
                 Row(
                   children: [
-                    const Icon(Icons.people_outline, color: Colors.yellow, size: 16),
+                    const Icon(Icons.people_outline,
+                        color: Colors.yellow, size: 16),
                     const SizedBox(width: 6),
                     Text(
-                      'Edad: ${curso.courseAge}+ años',
+                      'Edad: ${widget.curso.courseAge}+ años',
                       style: GoogleFonts.roboto(color: Colors.white),
                     ),
                   ],
@@ -235,17 +305,18 @@ class CourseCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.event_seat_outlined, color: Colors.yellow, size: 16),
+                    const Icon(Icons.event_seat_outlined,
+                        color: Colors.yellow, size: 16),
                     const SizedBox(width: 6),
                     Text(
-                      'Vacantes: ${curso.coursePlaces}',
+                      'Vacantes: ${widget.curso.coursePlaces}',
                       style: GoogleFonts.roboto(color: Colors.white),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  curso.courseDescription,
+                  widget.curso.courseDescription,
                   style: GoogleFonts.lato(
                     color: Colors.white70,
                     fontSize: 14,

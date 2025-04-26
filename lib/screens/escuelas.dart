@@ -199,7 +199,7 @@ class SchoolCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  escuela.schoolName,
+                  escuela.schoolName ?? '',
                   style: GoogleFonts.montserrat(
                     color: Colors.yellow.shade600,
                     fontSize: 18,

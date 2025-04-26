@@ -18,13 +18,13 @@ class _CoursesSectionState extends State<CoursesSection>
     {
       'title': 'Defensa Personal',
       'description': 'Programa de defensa personal para mejorar tu resistencia',
-      'price': '\$500000',
+      'price': '\$500.000',
       'isPopular': false,
     },
     {
-      'title': 'Yoga Integral', 
-      'description': 'Armoniza cuerpo y mente con técnicas de respiración y posturas',
-      'price': '\$90.000',
+      'title': 'Zumba', 
+      'description': 'Clases de entrenamiento funcional para mejorar tu rendimiento físico',
+      'price': '\$600.000',
       'isPopular': false,
     },
     {
@@ -34,9 +34,9 @@ class _CoursesSectionState extends State<CoursesSection>
       'isPopular': false,
     },
     {
-      'title': 'Pilates Reformer',
-      'description': 'Fortalece tu core y mejora la postura con máquinas especializadas',
-      'price': '\$110.000',
+      'title': 'Taekwondo',
+      'description': 'Curso de taekwondo para principiantes',
+      'price': '\$500.000',
       'isPopular': false,
     },
   ];
@@ -270,7 +270,7 @@ class _CourseCardState extends State<CourseCard>
                           ..scale(_isHovered ? 1.05 : 1.0),
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/curso-detalle');
+                            Navigator.pushNamed(context, '/cursos');
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _isHovered

@@ -325,12 +325,18 @@ class ApiService {
     rethrow;
   }
 }
-  static Future<Escuela> getEscuelaById(String id) async {
-    final response = await http.get(Uri.parse('$_baseUrl/escuelas/$id'));
-    if (response.statusCode == 200) {
-      return Escuela.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load escuela');
+  static Future<EscuelaCurso> getSchoolNameByCourseId(String courseId) async {
+  final response = await http.get(
+    Uri.parse('$_baseUrl/api/courses/$courseId/school'),
+  );
+
+  if (response.statusCode == 200) {
+    final jsonData = json.decode(response.body);
+    if (jsonData['success'] == true) {
+      return EscuelaCurso.fromJson(jsonData);
     }
+    throw Exception('API returned success: false');
   }
+  throw Exception('Error HTTP ${response.statusCode}');
+}
 }
