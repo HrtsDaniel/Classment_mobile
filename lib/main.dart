@@ -1,5 +1,6 @@
 import 'package:classment_mobile/screens/auth/login.dart';
 import 'package:classment_mobile/screens/auth/register.dart';
+import 'package:classment_mobile/screens/clases.dart';
 import 'package:classment_mobile/screens/cursos.dart';
 import 'package:classment_mobile/screens/escuelas.dart';
 import 'package:flutter/material.dart';

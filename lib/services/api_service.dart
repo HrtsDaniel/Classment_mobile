@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:classment_mobile/models/class_model.dart';
 import 'package:classment_mobile/models/curso_model.dart';
 import 'package:classment_mobile/models/school_model.dart';
 import 'package:classment_mobile/models/user_model.dart';
@@ -11,6 +12,7 @@ final logger = Logger();
 class ApiService {
   static const String _baseUrl = 'http://192.168.0.8:5000';
 
+  // USUARIOS
   static Future<bool> registrarUsuario(
       Map<String, dynamic> datosUsuario) async {
     final url = Uri.parse('$_baseUrl/api/users');
@@ -225,118 +227,143 @@ class ApiService {
     }
   }
 
- static Future<List<Escuela>> getEscuelas() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  
-  if (token == null) {
-    throw 'No hay token de autenticación. Por favor inicie sesión.';
-  }
+  // ESCUELAS
+  static Future<List<Escuela>> getEscuelas() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
 
-  final url = Uri.parse('$_baseUrl/api/schools');
-
-  try {
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    logger.i('Respuesta de /api/schools: ${response.statusCode}');
-    logger.v('Body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      
-      if (data is List) {
-        return data.map((json) => Escuela.fromJson(json)).toList();
-      }
-      
-      if (data is Map && data['data'] is List) {
-        return (data['data'] as List).map((json) => Escuela.fromJson(json)).toList();
-      }
-      
-      throw 'Formato de respuesta no reconocido';
-    } else if (response.statusCode == 401) {
-      throw 'Sesión expirada. Por favor vuelva a iniciar sesión.';
-    } else {
-      throw 'Error al cargar escuelas: ${response.statusCode}';
+    if (token == null) {
+      throw 'No hay token de autenticación. Por favor inicie sesión.';
     }
-  } catch (e) {
-    logger.e('Error en getEscuelas', error: e);
-    rethrow;
-  }
- }
 
- static Future<List<Course>> getCursos() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  
-  if (token == null) {
-    throw 'No hay token de autenticación. Por favor inicie sesión.';
-  }
+    final url = Uri.parse('$_baseUrl/api/schools');
 
-  final url = Uri.parse('$_baseUrl/api/courses');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
-  try {
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+      logger.i('Respuesta de /api/schools: ${response.statusCode}');
+      logger.v('Body: ${response.body}');
 
-    logger.i('Respuesta de /api/courses: ${response.statusCode}');
-    logger.v('Body: ${response.body}');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
 
-    if (response.statusCode == 200) {
-      final dynamic data = jsonDecode(response.body);
-      
-      if (data is List) {
-        return data.map((json) => Course.fromJson(json)).toList();
+        if (data is List) {
+          return data.map((json) => Escuela.fromJson(json)).toList();
+        }
+
+        if (data is Map && data['data'] is List) {
+          return (data['data'] as List)
+              .map((json) => Escuela.fromJson(json))
+              .toList();
+        }
+
+        throw 'Formato de respuesta no reconocido';
+      } else if (response.statusCode == 401) {
+        throw 'Sesión expirada. Por favor vuelva a iniciar sesión.';
+      } else {
+        throw 'Error al cargar escuelas: ${response.statusCode}';
       }
-      
-      else if (data is Map<String, dynamic> && data.containsKey('data') && data['data'] is List) {
-        final List<dynamic> cursosData = data['data'];
-        return cursosData.map((json) => Course.fromJson(json)).toList();
-      }
-      else if (data is Map<String, dynamic> && data.containsKey('data') && data['data'] is List) {
-        final List<dynamic> cursosData = data['data'];
-        return cursosData.map((json) => Course.fromJson(json)).toList();
-      }
-      
-      else if (data is Map<String, dynamic> && data.containsKey('courses') && data['courses'] is List) {
-        final List<dynamic> cursosData = data['courses'];
-        return cursosData.map((json) => Course.fromJson(json)).toList();
-      }
-      
-      logger.e('Estructura de respuesta no reconocida: $data');
-      throw 'Formato de respuesta no reconocido para cursos';
-    } else if (response.statusCode == 401) {
-      throw 'Sesión expirada. Por favor vuelva a iniciar sesión.';
-    } else {
-      throw 'Error al cargar cursos: ${response.statusCode}';
+    } catch (e) {
+      logger.e('Error en getEscuelas', error: e);
+      rethrow;
     }
-  } catch (e) {
-    logger.e('Error en getCursos', error: e);
-    rethrow;
   }
-}
+
+  //CURSOS
+  static Future<List<Course>> getCursos() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw 'No hay token de autenticación. Por favor inicie sesión.';
+    }
+
+    final url = Uri.parse('$_baseUrl/api/courses');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      logger.i('Respuesta de /api/courses: ${response.statusCode}');
+      logger.v('Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final dynamic data = jsonDecode(response.body);
+
+        if (data is List) {
+          return data.map((json) => Course.fromJson(json)).toList();
+        } else if (data is Map<String, dynamic> &&
+            data.containsKey('data') &&
+            data['data'] is List) {
+          final List<dynamic> cursosData = data['data'];
+          return cursosData.map((json) => Course.fromJson(json)).toList();
+        } else if (data is Map<String, dynamic> &&
+            data.containsKey('data') &&
+            data['data'] is List) {
+          final List<dynamic> cursosData = data['data'];
+          return cursosData.map((json) => Course.fromJson(json)).toList();
+        } else if (data is Map<String, dynamic> &&
+            data.containsKey('courses') &&
+            data['courses'] is List) {
+          final List<dynamic> cursosData = data['courses'];
+          return cursosData.map((json) => Course.fromJson(json)).toList();
+        }
+
+        logger.e('Estructura de respuesta no reconocida: $data');
+        throw 'Formato de respuesta no reconocido para cursos';
+      } else if (response.statusCode == 401) {
+        throw 'Sesión expirada. Por favor vuelva a iniciar sesión.';
+      } else {
+        throw 'Error al cargar cursos: ${response.statusCode}';
+      }
+    } catch (e) {
+      logger.e('Error en getCursos', error: e);
+      rethrow;
+    }
+  }
+
   static Future<EscuelaCurso> getSchoolNameByCourseId(String courseId) async {
-  final response = await http.get(
-    Uri.parse('$_baseUrl/api/courses/$courseId/school'),
-  );
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/courses/$courseId/school'),
+    );
 
-  if (response.statusCode == 200) {
-    final jsonData = json.decode(response.body);
-    if (jsonData['success'] == true) {
-      return EscuelaCurso.fromJson(jsonData);
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      if (jsonData['success'] == true) {
+        return EscuelaCurso.fromJson(jsonData);
+      }
+      throw Exception('API returned success: false');
     }
-    throw Exception('API returned success: false');
+    throw Exception('Error HTTP ${response.statusCode}');
   }
-  throw Exception('Error HTTP ${response.statusCode}');
+
+  static Future<List<ClassModel>> getClassesByCourseId(String courseId) async {
+  final url = Uri.parse('$_baseUrl/api/classes/course/$courseId');
+
+  try {
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final List classesJson = data['data'] ?? [];
+      return classesJson.map((json) => ClassModel.fromJson(json)).toList();
+    } else {
+      throw Exception('Error al obtener las clases: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error: $e');
+    return [];
+  }
 }
 }

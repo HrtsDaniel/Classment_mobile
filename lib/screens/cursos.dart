@@ -1,3 +1,4 @@
+import 'package:classment_mobile/screens/clases.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:classment_mobile/widgets/sidebar.dart';
@@ -182,23 +183,24 @@ class _CourseCardState extends State<CourseCard> {
   }
 
   Future<void> _fetchSchoolName() async {
-  print('Obteniendo escuela para el curso con ID: ${widget.curso.courseId}');
-  setState(() => _loadingSchool = true);
-  
-  try {
-    final escuela = await ApiService.getSchoolNameByCourseId(widget.curso.courseId);
-    setState(() {
-      _schoolName = escuela.schoolName;
-      _loadingSchool = false;
-    });
-  } catch (e) {
-    print('Error al obtener escuela: $e');
-    setState(() {
-      _schoolName = 'Desconocida';
-      _loadingSchool = false;
-    });
+    print('Obteniendo escuela para el curso con ID: ${widget.curso.courseId}');
+    setState(() => _loadingSchool = true);
+
+    try {
+      final escuela =
+          await ApiService.getSchoolNameByCourseId(widget.curso.courseId);
+      setState(() {
+        _schoolName = escuela.schoolName;
+        _loadingSchool = false;
+      });
+    } catch (e) {
+      print('Error al obtener escuela: $e');
+      setState(() {
+        _schoolName = 'Desconocida';
+        _loadingSchool = false;
+      });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -334,10 +336,18 @@ class _CourseCardState extends State<CourseCard> {
                       ),
                     ),
                     onPressed: () {
-                      // Navegar al detalle del curso
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ClassesScreen(
+                            courseId: widget.curso.courseId,
+                            courseName: widget.curso.courseName,
+                          ),
+                        ),
+                      );
                     },
                     child: Text(
-                      'VER DETALLES',
+                      'Ver Clases',
                       style: GoogleFonts.montserrat(
                         fontWeight: FontWeight.bold,
                       ),

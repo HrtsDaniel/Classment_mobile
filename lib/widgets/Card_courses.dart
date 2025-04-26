@@ -18,25 +18,25 @@ class _CoursesSectionState extends State<CoursesSection>
     {
       'title': 'Defensa Personal',
       'description': 'Programa de defensa personal para mejorar tu resistencia',
-      'price': '\$500.000',
+      'price': '500.000',
       'isPopular': false,
     },
     {
       'title': 'Zumba', 
       'description': 'Clases de entrenamiento funcional para mejorar tu rendimiento físico',
-      'price': '\$600.000',
+      'price': '600.000',
       'isPopular': false,
     },
     {
       'title': 'Boxeo Avanzado',
       'description': 'Técnicas profesionales de combate y defensa personal',
-      'price': '\$150.000',
+      'price': '150.000',
       'isPopular': false,
     },
     {
       'title': 'Taekwondo',
       'description': 'Curso de taekwondo para principiantes',
-      'price': '\$500.000',
+      'price': '500.000',
       'isPopular': false,
     },
   ];
