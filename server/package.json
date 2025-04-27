@@ -1,0 +1,31 @@
+{
+    "name": "classment-academy-api",
+    "version": "1.0.0",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "node --watch src/index.js",
+        "server": "node --watch --env-file=.env src/index.js",
+        "db:migrate": "npx sequelize-cli db:migrate",
+        "db:migrate:undo": "npx sequelize-cli db:migrate:undo",
+        "db:seed": "npx sequelize-cli db:seed:all",
+        "db:seed:undo": "npx sequelize-cli db:seed:undo:all",
+        "db:reset": "npx sequelize-cli db:migrate:undo:all && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all"
+    },
+    "keywords": [],
+    "author": "Kevin Alejandro Parra Cifuentes",
+    "license": "ISC",
+    "type": "commonjs",
+    "description": "",
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "classment-academy": "file:..",
+        "cors": "^2.8.5",
+        "express": "^5.1.0",
+        "express-async-handler": "^1.2.0",
+        "jsonwebtoken": "^9.0.2",
+        "mysql2": "^3.14.0",
+        "nodemailer": "^6.10.0",
+        "sequelize": "^6.37.7",
+        "sequelize-cli": "^6.6.2"
+    }
+}

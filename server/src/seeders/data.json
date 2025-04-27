@@ -1,0 +1,318 @@
+{
+    "users": [
+        {
+            "user_id": "550e8400-e29b-41d4-a716-446655440000",
+            "user_name": "Kevin Alejandro",
+            "user_lastname": "Parra Cifuentes",
+            "user_document_type": "CC",
+            "user_document": 1234567890,
+            "user_email": "luisparra5380@gmail.com",
+            "user_password": "$2a$10$zFS0MvbkAHNF1RMUjxHoJenSERwRPRcRwJxVaOwgAbdLb6QqFErB2",
+            "user_phone": 3209202177,
+            "user_image": "http://localhost:3000/images/users/default.jpg",
+            "user_birth": "2006-10-13",
+            "user_state": "activo",
+            "role_id": 1,
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+      
+            {
+                "user_id": "550e8400-e29b-41d4-a716-446655440001",
+                "user_name": "Carlos",
+                "user_lastname": "Rodríguez",
+                "user_document_type": "CC",
+                "user_document": 1003003003,
+                "user_email": "carlos.rodriguez@email.com",
+                "user_password": "$2a$10$lrTDwCCjDLcXuf7.Lm/pku.Vci8H1cPlsf29pHN.Tivjlir4p523S",
+                "user_phone": 3005555555,
+                "user_image": "http://localhost:3000/images/users/default.jpg",
+                "user_birth": "1988-03-25",
+                "user_state": "activo",
+                "role_id": 3,
+                "createdAt": "2025-04-03T12:00:00Z",
+                "updatedAt": "2025-04-03T12:00:00Z"
+            },
+            {
+                "user_id": "550e8400-e29b-41d4-a716-446655440002",
+                "user_name": "Ana",
+                "user_lastname": "Martínez",
+                "user_document_type": "CC",
+                "user_document": 1004004004,
+                "user_email": "ana.martinez@email.com",
+                "user_password": "$2a$10$cDl6ZPTZSqrtecqY/aA8Au6bzI79MICWtYe9.uEMzCGwQIFTMeIw2",
+                "user_phone": 3007777777,
+                "user_image": "http://localhost:3000/images/users/default.jpg",
+                "user_birth": "1992-12-10",
+                "user_state": "activo",
+                "role_id": 4,
+                "createdAt": "2025-04-03T12:00:00Z",
+                "updatedAt": "2025-04-03T12:00:00Z"
+            },
+            {
+                "user_id": "550e8400-e29b-41d4-a716-446655440003",
+                "user_name": "Marco",
+                "user_lastname": "Gonzalez",
+                "user_document_type": "CC",
+                "user_document": 1004004005,
+                "user_email": "marco@email.com",
+                "user_password": "$2a$10$xsMhIclPh1kWAFD4gm35D.EPlJyMALzhgMmha4tcw.N9N33REPXMG",
+                "user_phone": 3087777777,
+                "user_image": "http://localhost:3000/images/users/default.jpg",
+                "user_birth": "1999-12-10",
+                "user_state": "activo",
+                "role_id": 2,
+                "createdAt": "2025-04-03T12:00:00Z",
+                "updatedAt": "2025-04-03T12:00:00Z"
+            },
+            {
+                "user_id": "550e8400-e29b-41d4-a716-446655440004",
+                "user_name": "Daniel",
+                "user_lastname": "Gomez",
+                "user_document_type": "CC",
+                "user_document": 1025531522,
+                "user_email": "danielbernalg.04@gmail.com",
+                "user_password": "$2a$10$gnplREnLwwfxgNB8mQu9EOaObcQTs13wkkQRB1wAIVmIpsjLv3KCK",
+                "user_phone": 3001234565,
+                "user_image": "http://localhost:3000/images/users/default.jpg",
+                "user_birth": "1991-05-15",
+                "user_state": "activo",
+                "role_id": 3,
+                "createdAt": "2025-04-03T12:00:00Z",
+                "updatedAt": "2025-04-03T12:00:00Z"
+            }
+        ],
+
+
+    "roles": [
+        {
+            "role_id": 1,
+            "role_name": "estudiante"
+        },
+        {
+            "role_id": 2,
+            "role_name": "profesor"
+        },
+        {
+            "role_id": 3,
+            "role_name": "administrador"
+        },
+        {
+            "role_id": 4,
+            "role_name": "coordinador"
+        },
+        {
+            "role_id": 5,
+            "role_name": "invitado"
+        }
+
+    ],
+    "schools": [
+        {
+            "school_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "teacher_id": "550e8400-e29b-41d4-a716-446655440003",
+            "school_name": "GO FIT",
+            "school_description": "Entrenamiento y acondicionamiento fisico",
+            "school_phone": 1234567890,
+            "school_address": "Calle 123, Bogota D.C.",
+            "school_image": "/images/escuelas/gofit.jpeg",
+            "school_email": "danielbernalg.04@gmail.com",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "school_id": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
+            "teacher_id": "550e8400-e29b-41d4-a716-446655440003",
+            "school_name": "Soy Fitness",
+            "school_description": "Yoga, Pilates y mas",
+            "school_phone": 9876543210,
+            "school_address": "Avenida 456, primera de mayo con boyaca",
+            "school_image": "/images/escuelas/soyfitness.jpg",
+            "school_email": "soyfitness@gmail.com",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "school_id": "3fa85f64-5717-4562-b3fc-2c963f66afa8",
+            "teacher_id": "550e8400-e29b-41d4-a716-446655440003",
+            "school_name": "Taekwondo",
+            "school_description": "Cursos de taekwondo para todos los niveles",
+            "school_phone": 5555555555,
+            "school_address": "Plaza Principal, Carrera 10 con circunvalar",
+            "school_image": "/images/escuelas/taekwondo.jpg",
+            "school_email": "taekwondo@gmail.com",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "school_id": "3fa85f64-5717-4562-b3fc-2c963f66afa9",
+            "teacher_id": "550e8400-e29b-41d4-a716-446655440003",
+            "school_name": "Administrativo",
+            "school_description": "Administracion classment academy",
+            "school_phone": 1234567891,
+            "school_address": "sena complejo sur, Bogota D.C.",
+            "school_image": "/images/escuelas/administrativo.jpg",
+            "school_email": "classmentacademy@gmail.com",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        }
+    ],
+    "courses": [
+        {
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+            "school_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "course_name": "Entrenamiento personal",
+            "course_description": "Asesorias de entrenamiento personal para lograr tus obejetivos",
+            "course_price": 500000,
+            "course_places": 15,
+            "course_age": 16,
+            "course_image": "/images/cursos/entrenamiento.jpg",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0852",
+            "school_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "course_name": "Entrenamiento Funcional",
+            "course_description": "Clases de entrenamiento funcional para mejorar tu rendimiento físico",
+            "course_price": 600000,
+            "course_places": 20,
+            "course_age": 16,
+            "course_image": "/images/cursos/entrenamiento-funcional.jpg",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0853",
+            "school_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "course_name": "Defensa Personal",
+            "course_description": "Programa de defensa personal para mejorar tu resistencia",
+            "course_price": 500000,
+            "course_places": 15,
+            "course_age": 14,
+            "course_image": "/images/cursos/defensa_personal.jpg",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0854",
+            "school_id": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
+            "course_name": "Entrenamiento de Fuerza",
+            "course_description": "Clases de entrenamiento de fuerza para tonificar el cuerpo",
+            "course_price": 650000,
+            "course_places": 15,
+            "course_age": 18,
+            "course_image": "/images/cursos/entrenamiento_fuerza.jpeg",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0855",
+            "school_id": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
+            "course_name": "Zumba",
+            "course_description": "Clases de Zumba para quemar calorías y divertirse",
+            "course_price": 400000,
+            "course_places": 20,
+            "course_age": 16,
+            "course_image": "/images/cursos/zumba.jpg",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0856",
+            "school_id": "3fa85f64-5717-4562-b3fc-2c963f66afa8",
+            "course_name": "Taekwondo Básico",
+            "course_description": "Curso de taekwondo para principiantes",
+            "course_price": 500000,
+            "course_places": 20,
+            "course_age": 8,
+            "course_image": "/images/cursos/taekwondo_ninos.jpg",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0857",
+            "school_id": "3fa85f64-5717-4562-b3fc-2c963f66afa8",
+            "course_name": "Taekwondo Avanzado",
+            "course_description": "Curso avanzado de taekwondo para competidores",
+            "course_price": 700000,
+            "course_places": 15,
+            "course_age": 10,
+            "course_image": "/images/cursos/2.jpg",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        }
+    ],
+    "usercourses": [
+        {
+            "user_id": "550e8400-e29b-41d4-a716-446655440000",
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+            "course_plan": "mensual",
+            "course_state": "2025-04-03T12:00:00Z",
+            "course_start": "2024-08-01T00:00:00Z",
+            "course_end": "2024-12-15T00:00:00Z",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "user_id": "550e8400-e29b-41d4-a716-446655440000",
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0852",
+            "course_plan": "mensual",
+            "course_state": "2025-04-03T12:00:00Z",
+            "course_start": "2024-08-01T00:00:00Z",
+            "course_end": "2024-12-15T00:00:00Z",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "user_id": "550e8400-e29b-41d4-a716-446655440000",
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0856",
+            "course_plan": "mensual",
+            "course_state": "2025-04-03T12:00:00Z",
+            "course_start": "2024-07-15T00:00:00Z",
+            "course_end": "2024-12-20T00:00:00Z",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "user_id": "550e8400-e29b-41d4-a716-446655440001",
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0853",
+            "course_plan": "mensual",
+            "course_state": "2025-04-03T12:00:00Z",
+            "course_start": "2024-09-01T00:00:00Z",
+            "course_end": "2025-01-15T00:00:00Z",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "user_id": "550e8400-e29b-41d4-a716-446655440001",
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0854",
+            "course_plan": "mensual",
+            "course_state": "2025-04-03T12:00:00Z",
+            "course_start": "2024-08-15T00:00:00Z",
+            "course_end": "2024-12-15T00:00:00Z",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "user_id": "550e8400-e29b-41d4-a716-446655440002",
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0855",
+            "course_plan": "mensual",
+            "course_state": "2025-04-03T12:00:00Z",
+            "course_start": "2024-09-01T00:00:00Z",
+            "course_end": "2025-02-28T00:00:00Z",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        },
+        {
+            "user_id": "550e8400-e29b-41d4-a716-446655440002",
+            "course_id": "d290f1ee-6c54-4b01-90e6-d701748f0857",
+            "course_plan": "mensual",
+            "course_state": "2025-04-03T12:00:00Z",
+            "course_start": "2024-08-01T00:00:00Z",
+            "course_end": "2025-01-15T00:00:00Z",
+            "createdAt": "2025-04-03T12:00:00Z",
+            "updatedAt": "2025-04-03T12:00:00Z"
+        }
+    ]
+}
