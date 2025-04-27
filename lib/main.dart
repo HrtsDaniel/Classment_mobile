@@ -3,6 +3,7 @@ import 'package:classment_mobile/screens/auth/register.dart';
 import 'package:classment_mobile/screens/clases.dart';
 import 'package:classment_mobile/screens/cursos.dart';
 import 'package:classment_mobile/screens/escuelas.dart';
+import 'package:classment_mobile/screens/misClases.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'screens/home.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginUsuario(),
         '/escuelas': (context) => const Escuelas(),
         '/cursos': (context) => const CursosScreen(),
+        '/misclases': (context) => const MisClases()
       },
     );
   }

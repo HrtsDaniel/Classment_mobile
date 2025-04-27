@@ -4,6 +4,7 @@ import 'package:classment_mobile/models/curso_model.dart';
 import 'package:classment_mobile/models/enrollment_model.dart';
 import 'package:classment_mobile/models/school_model.dart';
 import 'package:classment_mobile/models/user_model.dart';
+import 'package:classment_mobile/models/user_info_model.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -38,115 +39,116 @@ class ApiService {
   }
 
   static Future<User?> loginUser(String email, String password) async {
-  final url = Uri.parse('$_baseUrl/api/login');
+    final url = Uri.parse('$_baseUrl/api/login');
 
-  final Map<String, dynamic> datosLogin = {
-    'user': {
-      'user_email': email.trim(),
-      'user_password': password.trim(),
-    }
-  };
-
-  try {
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(datosLogin),
-    );
-
-    logger.i('Respuesta del login (${response.statusCode}): ${response.body}');
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final token = data['data']?['token']?.toString();
-
-      if (token == null || token.isEmpty) {
-        logger.e('Token inválido o ausente');
-        return null;
+    final Map<String, dynamic> datosLogin = {
+      'user': {
+        'user_email': email.trim(),
+        'user_password': password.trim(),
       }
+    };
 
-      // Guardar token inmediatamente
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', token);
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(datosLogin),
+      );
 
-      // Obtener usuario completo con validarToken
-      final user = await validarToken(token);
-      if (user != null) {
-        // Guardar userId obtenido del endpoint /me
-        await prefs.setString('userId', user.userId ?? '');
-        await prefs.setString('user_data', jsonEncode(user.toJson()));
-        logger.i('Usuario autenticado: ${user.userEmail}');
-        return user;
-      }
-    } else {
-      logger.w('Error en login (${response.statusCode}): ${response.body}');
-      throw Exception('Error de autenticación: ${response.statusCode}');
-    }
-  } catch (e) {
-    logger.e('Error en loginUser', error: e, stackTrace: StackTrace.current);
-    rethrow;
-  }
-  return null;
-}
+      logger
+          .i('Respuesta del login (${response.statusCode}): ${response.body}');
 
-  static Future<User?> validarToken(String? token) async {
-  final url = Uri.parse('$_baseUrl/api/auth/me');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final token = data['data']?['token']?.toString();
 
-  if (token == null) {
-    logger.i('Token es nulo en validarToken');
-    return null;
-  }
-
-  try {
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    logger.i('Respuesta validarToken: ${response.statusCode} - ${response.body}');
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      if (data['success'] == true && data['user'] != null) {
-        final dataUser = data['user'];
-        
-        // Verificación exhaustiva de datos
-        if (dataUser['id'] == null) {
-          logger.e('El usuario no tiene ID en la respuesta');
+        if (token == null || token.isEmpty) {
+          logger.e('Token inválido o ausente');
           return null;
         }
 
-        final user = User(
-          userId: dataUser['id'].toString(), // Asegurar que es string
-          userName: dataUser['name'] ?? 'Desconocido',
-          userLastname: dataUser['lastname'] ?? 'Desconocido',
-          userDocumentType: dataUser['document_type'] ?? 'CC',
-          userDocument: dataUser['document'] ?? '',
-          userEmail: dataUser['email'] ?? '',
-          userPassword: '', // No guardar contraseña
-          userPhone: dataUser['phone']?.toString() ?? '',
-          userImage: dataUser['image'] ?? '',
-          userBirth: dataUser['birthdate'] ?? '',
-          userState: dataUser['state']?.toString() ?? 'activo',
-          roleId: int.tryParse(dataUser['role']?.toString() ?? '') ?? 1,
-        );
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
 
-        logger.i('Usuario validado: ${user.userId} - ${user.userEmail}');
-        return user;
+        final user = await validarToken(token);
+        if (user != null) {
+          await prefs.setString('userId', user.userId ?? '');
+          await prefs.setString('user_data', jsonEncode(user.toJson()));
+          logger.i('Usuario autenticado: ${user.userEmail}');
+          return user;
+        }
+      } else {
+        logger.w('Error en login (${response.statusCode}): ${response.body}');
+        throw Exception('Error de autenticación: ${response.statusCode}');
       }
+    } catch (e) {
+      logger.e('Error en loginUser', error: e, stackTrace: StackTrace.current);
+      rethrow;
     }
-    
-    logger.w('Error validando token (${response.statusCode}): ${response.body}');
-    return null;
-  } catch (e) {
-    logger.e('Error en validarToken', error: e, stackTrace: StackTrace.current);
     return null;
   }
-}
+
+  static Future<User?> validarToken(String? token) async {
+    final url = Uri.parse('$_baseUrl/api/auth/me');
+
+    if (token == null) {
+      logger.i('Token es nulo en validarToken');
+      return null;
+    }
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      logger.i(
+          'Respuesta validarToken: ${response.statusCode} - ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['success'] == true && data['user'] != null) {
+          final dataUser = data['user'];
+
+          // Verificación exhaustiva de datos
+          if (dataUser['id'] == null) {
+            logger.e('El usuario no tiene ID en la respuesta');
+            return null;
+          }
+
+          final user = User(
+            userId: dataUser['id'].toString(), // Asegurar que es string
+            userName: dataUser['name'] ?? 'Desconocido',
+            userLastname: dataUser['lastname'] ?? 'Desconocido',
+            userDocumentType: dataUser['document_type'] ?? 'CC',
+            userDocument: dataUser['document'] ?? '',
+            userEmail: dataUser['email'] ?? '',
+            userPassword: '', // No guardar contraseña
+            userPhone: dataUser['phone']?.toString() ?? '',
+            userImage: dataUser['image'] ?? '',
+            userBirth: dataUser['birthdate'] ?? '',
+            userState: dataUser['state']?.toString() ?? 'activo',
+            roleId: int.tryParse(dataUser['role']?.toString() ?? '') ?? 1,
+          );
+
+          logger.i('Usuario validado: ${user.userId} - ${user.userEmail}');
+          return user;
+        }
+      }
+
+      logger.w(
+          'Error validando token (${response.statusCode}): ${response.body}');
+      return null;
+    } catch (e) {
+      logger.e('Error en validarToken',
+          error: e, stackTrace: StackTrace.current);
+      return null;
+    }
+  }
 
   static Future<User?> getCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
@@ -363,82 +365,109 @@ class ApiService {
   }
 
   static Future<List<ClassModel>> getClassesByCourseId(String courseId) async {
-  final url = Uri.parse('$_baseUrl/api/classes/course/$courseId');
+    final url = Uri.parse('$_baseUrl/api/classes/course/$courseId');
 
-  try {
-    final response = await http.get(url);
+    try {
+      final response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final List classesJson = data['data'] ?? [];
-      return classesJson.map((json) => ClassModel.fromJson(json)).toList();
-    } else {
-      throw Exception('Error al obtener las clases: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error: $e');
-    return [];
-  }
- }
-
-static Future<Enrollment> scheduleClass({
-  required String userId,
-  required String courseId,
-  required DateTime startDate,
-  required DateTime endDate,
-}) async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
-  
-  if (token == null) {
-    throw Exception('No autenticado. Por favor inicie sesión.');
-  }
-
-  final url = Uri.parse('$_baseUrl/api/enrollments/schedule-class');
-  final requestBody = {
-    "user_id": userId,
-    "course_id": courseId,
-    "start_date": startDate.toUtc().toIso8601String(),
-    "end_date": endDate.toUtc().toIso8601String(),
-  };
-
-  try {
-    final response = await http.post(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-      body: jsonEncode(requestBody),
-    );
-
-    final responseData = jsonDecode(response.body);
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      if (responseData['success'] == true) {
-        // Si la respuesta tiene data con la estructura completa
-        if (responseData['data'] != null) {
-          return Enrollment.fromJson(responseData['data']);
-        }
-        // Si solo viene el mensaje de éxito
-        return Enrollment(
-          enrollmentId: '', // Generar un ID temporal o dejar vacío si el backend lo genera
-          userId: userId,
-          courseId: courseId,
-          startDate: startDate,
-          endDate: endDate,
-          status: 'active',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List classesJson = data['data'] ?? [];
+        return classesJson.map((json) => ClassModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Error al obtener las clases: ${response.statusCode}');
       }
-      throw Exception(responseData['message'] ?? 'Error desconocido');
-    } else {
-      throw Exception(responseData['message'] ?? 'Error al agendar clase');
+    } catch (e) {
+      print('Error: $e');
+      return [];
     }
-  } catch (e) {
-    logger.e('Error en scheduleClass', error: e);
-    rethrow;
   }
-}
+
+  static Future<Enrollment> scheduleClass({
+    required String userId,
+    required String courseId,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('No autenticado. Por favor inicie sesión.');
+    }
+
+    final url = Uri.parse('$_baseUrl/api/enrollments/schedule-class');
+    final requestBody = {
+      "user_id": userId,
+      "course_id": courseId,
+      "start_date": startDate.toUtc().toIso8601String(),
+      "end_date": endDate.toUtc().toIso8601String(),
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (responseData['success'] == true) {
+          if (responseData['data'] != null) {
+            return Enrollment.fromJson(responseData['data']);
+          }
+          // Si solo viene el mensaje de éxito
+          return Enrollment(
+            enrollmentId: '',
+            userId: userId,
+            courseId: courseId,
+            startDate: startDate,
+            endDate: endDate,
+            status: 'active',
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+        }
+        throw Exception(responseData['message'] ?? 'Error desconocido');
+      } else {
+        throw Exception(responseData['message'] ?? 'Error al agendar clase');
+      }
+    } catch (e) {
+      logger.e('Error en scheduleClass', error: e);
+      rethrow;
+    }
+  }
+
+  static Future<List<UserEnrollmentInfo>> getUserEnrollmentsInfo(
+      String userId) async {
+    final url = Uri.parse('$_baseUrl/api/enrollments/user-info/$userId');
+
+    try {
+      final response = await http.get(url);
+
+      print(
+          'Respuesta de la API: ${response.body}'); // Verifica la respuesta completa
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List enrollmentsJson = data['data'] ?? [];
+        print(
+            'Datos procesados: $enrollmentsJson'); // Verifica los datos procesados
+        return enrollmentsJson
+            .map((json) => UserEnrollmentInfo.fromJson(json))
+            .toList();
+      } else {
+        throw Exception(
+            'Error al obtener inscripciones: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error en getUserEnrollmentsInfo: $e');
+      rethrow;
+    }
+  }
 }

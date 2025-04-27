@@ -186,7 +186,7 @@ class _ClassesScreenState extends State<ClassesScreen> {
     // Mostrar mensaje de éxito
     scaffoldMessenger.showSnackBar(
       const SnackBar(
-        content: Text('✅ Inscripción exitosa'),
+        content: Text('Inscripción exitosa'),
         backgroundColor: Colors.green,
         duration: Duration(seconds: 3),
       ),

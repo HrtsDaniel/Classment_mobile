@@ -3,6 +3,7 @@ import 'package:classment_mobile/screens/home.dart';
 import 'package:classment_mobile/screens/perfil.dart';
 import 'package:classment_mobile/screens/escuelas.dart';
 import 'package:classment_mobile/screens/cursos.dart';
+import 'package:classment_mobile/screens/misClases.dart';
 
 
 class SideBar extends StatefulWidget {
@@ -20,7 +21,7 @@ class SideBarState extends State<SideBar> {
     {"icon": Icons.person, "text": "PERFIL", "page": const Perfil()},
     {"icon": Icons.school, "text": "ESCUELAS", "page": const Escuelas()},
     {"icon": Icons.book, "text": "CURSOS", "page": const CursosScreen()},
-    {"icon": Icons.info, "text": "INFORMACIÓN"},
+    {"icon": Icons.info, "text": "MIS CLASES", "page": const MisClases()},
     {"icon": Icons.mail, "text": "CONTACTO"},
   ];
 
