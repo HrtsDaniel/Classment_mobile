@@ -155,6 +155,7 @@ class _LoginUsuarioState extends State<LoginUsuario> {
                     return;
                   }
 
+                  try {
                   final result = await ApiService.loginUser(email, password);
 
                   if (result != null) {
@@ -172,7 +173,12 @@ class _LoginUsuarioState extends State<LoginUsuario> {
                           content: Text('Correo o contraseña incorrectos')),
                     );
                   }
-                },
+                } catch (e) {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                   const SnackBar(content: Text('Correo o contraseña incorrectos')),
+                  );
+                }
+              }
               ),
             ),
             const SizedBox(height: 20),

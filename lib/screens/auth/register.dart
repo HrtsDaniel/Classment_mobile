@@ -13,8 +13,6 @@ class RegistroUsuario extends StatefulWidget {
 
 List<Map<String, dynamic>> _roles = [
   {'label': 'Estudiante', 'value': 1},
-  {'label': 'Administrador', 'value': 3},
-  {'label': 'Coordinador', 'value': 4},
 ];
 
 class _RegistroUsuario extends State<RegistroUsuario> {

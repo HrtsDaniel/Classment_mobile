@@ -1,3 +1,4 @@
+import 'package:classment_mobile/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:classment_mobile/widgets/sidebar.dart';
@@ -36,8 +37,9 @@ class _ClassesScreenState extends State<ClassesScreen> {
   }
 
   Future<void> _fetchClasses() async {
-    developer.log('Obteniendo clases para el curso ${widget.courseId}', name: 'ClassesScreen');
-    
+    developer.log('Obteniendo clases para el curso ${widget.courseId}',
+        name: 'ClassesScreen');
+
     setState(() {
       _isLoading = true;
       _error = null;
@@ -45,13 +47,15 @@ class _ClassesScreenState extends State<ClassesScreen> {
 
     try {
       final classes = await ApiService.getClassesByCourseId(widget.courseId);
-      developer.log('Clases obtenidas: ${classes.length}', name: 'ClassesScreen');
-      
+      developer.log('Clases obtenidas: ${classes.length}',
+          name: 'ClassesScreen');
+
       setState(() {
         _classesFuture = Future.value(classes);
       });
     } catch (e) {
-      developer.log('Error al obtener clases: $e', name: 'ClassesScreen', error: e);
+      developer.log('Error al obtener clases: $e',
+          name: 'ClassesScreen', error: e);
       setState(() {
         _error = e.toString();
       });
@@ -62,19 +66,23 @@ class _ClassesScreenState extends State<ClassesScreen> {
     }
   }
 
-  Future<void> _enrollToClass(BuildContext context, ClassModel classItem) async {
-    developer.log('Intentando inscribir a clase: ${classItem.classId}', name: 'ClassesScreen');
-    
+  Future<void> _enrollToClass(
+      BuildContext context, ClassModel classItem) async {
+    developer.log('Intentando inscribir a clase: ${classItem.classId}',
+        name: 'ClassesScreen');
+
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId');
-    
-    developer.log('UserID obtenido de SharedPreferences: $userId', name: 'ClassesScreen');
-    
+
+    developer.log('UserID obtenido de SharedPreferences: $userId',
+        name: 'ClassesScreen');
+
     if (userId == null || userId.isEmpty) {
       developer.log('No se encontró userId válido', name: 'ClassesScreen');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('No se pudo identificar al usuario. Por favor inicie sesión nuevamente.'),
+          content: Text(
+              'No se pudo identificar al usuario. Por favor inicie sesión nuevamente.'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
         ),
@@ -84,10 +92,12 @@ class _ClassesScreenState extends State<ClassesScreen> {
 
     // Validar si la clase ya pasó
     if (classItem.classDate.isBefore(DateTime.now())) {
-      developer.log('Clase ya pasó: ${classItem.classDate}', name: 'ClassesScreen');
+      developer.log('Clase ya pasó: ${classItem.classDate}',
+          name: 'ClassesScreen');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Esta clase ya ocurrió el ${DateFormat('dd/MM/yyyy').format(classItem.classDate)}'),
+          content: Text(
+              'Esta clase ya ocurrió el ${DateFormat('dd/MM/yyyy').format(classItem.classDate)}'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -95,8 +105,11 @@ class _ClassesScreenState extends State<ClassesScreen> {
     }
 
     // Calcular fecha de fin
-    final endDate = classItem.classDate.add(Duration(minutes: classItem.duration));
-    developer.log('Fecha de inicio: ${classItem.classDate}, Fecha de fin: $endDate', name: 'ClassesScreen');
+    final endDate =
+        classItem.classDate.add(Duration(minutes: classItem.duration));
+    developer.log(
+        'Fecha de inicio: ${classItem.classDate}, Fecha de fin: $endDate',
+        name: 'ClassesScreen');
 
     showDialog(
       context: context,
@@ -135,7 +148,8 @@ class _ClassesScreenState extends State<ClassesScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              developer.log('Inscripción cancelada por el usuario', name: 'ClassesScreen');
+              developer.log('Inscripción cancelada por el usuario',
+                  name: 'ClassesScreen');
               Navigator.pop(context);
             },
             child: Text(
@@ -148,9 +162,17 @@ class _ClassesScreenState extends State<ClassesScreen> {
               backgroundColor: Colors.yellow[600],
             ),
             onPressed: () async {
-              developer.log('Usuario confirmó inscripción', name: 'ClassesScreen');
+              developer.log('Usuario confirmó inscripción',
+                  name: 'ClassesScreen');
               Navigator.pop(context);
               await _processEnrollment(context, userId, classItem, endDate);
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(),
+                ),
+              );
             },
             child: Text(
               'Confirmar',
@@ -163,65 +185,64 @@ class _ClassesScreenState extends State<ClassesScreen> {
   }
 
   Future<void> _processEnrollment(
-  BuildContext context,
-  String userId,
-  ClassModel classItem,
-  DateTime endDate,
-) async {
-  developer.log('Procesando inscripción...', name: 'ClassesScreen');
-  
-  setState(() => _isEnrolling = true);
-  final scaffoldMessenger = ScaffoldMessenger.of(context);
-  
-  try {
-    developer.log('Enviando datos al servidor...', name: 'ClassesScreen');
-    
-    await ApiService.scheduleClass(
-      userId: userId,
-      courseId: widget.courseId,
-      startDate: classItem.classDate,
-      endDate: endDate,
-    );
+    BuildContext context,
+    String userId,
+    ClassModel classItem,
+    DateTime endDate,
+  ) async {
+    developer.log('Procesando inscripción...', name: 'ClassesScreen');
 
-    // Mostrar mensaje de éxito
-    scaffoldMessenger.showSnackBar(
-      const SnackBar(
-        content: Text('Inscripción exitosa'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 3),
-      ),
-    );
+    setState(() => _isEnrolling = true);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    // Actualizar la lista de clases
-    await _fetchClasses();
-    
-  } on Exception catch (e) {
-    // Manejar solo si el mensaje no contiene "exitosa"
-    if (!e.toString().toLowerCase().contains('exitosa')) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text('❌ Error: ${_getUserFriendlyError(e)}'),
-          backgroundColor: Colors.red,
-        ),
+    try {
+      developer.log('Enviando datos al servidor...', name: 'ClassesScreen');
+
+      await ApiService.scheduleClass(
+        userId: userId,
+        courseId: widget.courseId,
+        startDate: classItem.classDate,
+        endDate: endDate,
       );
-    } else {
-      // Si el mensaje contiene "exitosa", mostrarlo como éxito
+
+      // Mostrar mensaje de éxito
       scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text('✅ ${e.toString().replaceFirst('Exception: ', '')}'),
+        const SnackBar(
+          content: Text('Inscripción exitosa'),
           backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
         ),
       );
+
+      // Actualizar la lista de clases
       await _fetchClasses();
+    } on Exception catch (e) {
+      // Manejar solo si el mensaje no contiene "exitosa"
+      if (!e.toString().toLowerCase().contains('exitosa')) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('❌ Error: ${_getUserFriendlyError(e)}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        // Si el mensaje contiene "exitosa", mostrarlo como éxito
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text('✅ ${e.toString().replaceFirst('Exception: ', '')}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        await _fetchClasses();
+      }
+    } finally {
+      setState(() => _isEnrolling = false);
     }
-  } finally {
-    setState(() => _isEnrolling = false);
   }
-}
 
   String _getUserFriendlyError(dynamic error) {
     developer.log('Procesando error: $error', name: 'ClassesScreen');
-    
+
     if (error.toString().contains('No hay token de autenticación')) {
       return 'Su sesión ha expirado. Por favor inicie sesión nuevamente.';
     } else if (error.toString().contains('Error HTTP 409')) {
@@ -249,7 +270,6 @@ class _ClassesScreenState extends State<ClassesScreen> {
               ),
             ),
           ),
-          
           Column(
             children: [
               const CustomNavbar(height: 80),
@@ -257,7 +277,8 @@ class _ClassesScreenState extends State<ClassesScreen> {
                 child: RefreshIndicator(
                   onRefresh: _fetchClasses,
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -281,14 +302,16 @@ class _ClassesScreenState extends State<ClassesScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-
                         if (_isLoading)
-                          const Center(child: CircularProgressIndicator(color: Colors.yellow))
+                          const Center(
+                              child: CircularProgressIndicator(
+                                  color: Colors.yellow))
                         else if (_error != null)
                           Center(
                             child: Column(
                               children: [
-                                const Icon(Icons.error_outline, color: Colors.red, size: 50),
+                                const Icon(Icons.error_outline,
+                                    color: Colors.red, size: 50),
                                 const SizedBox(height: 16),
                                 Text(
                                   _error!,
@@ -319,7 +342,7 @@ class _ClassesScreenState extends State<ClassesScreen> {
                                     ),
                                   );
                                 }
-                                
+
                                 return ListView.builder(
                                   physics: const NeverScrollableScrollPhysics(),
                                   shrinkWrap: true,
@@ -328,7 +351,8 @@ class _ClassesScreenState extends State<ClassesScreen> {
                                     final clase = snapshot.data![index];
                                     return ClassCard(
                                       clase: clase,
-                                      onEnroll: () => _enrollToClass(context, clase),
+                                      onEnroll: () =>
+                                          _enrollToClass(context, clase),
                                       isEnrolling: _isEnrolling,
                                     );
                                   },
@@ -397,7 +421,8 @@ class ClassCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.yellow[600],
                     borderRadius: BorderRadius.circular(12),
@@ -414,8 +439,8 @@ class ClassCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            
-            if (clase.classDescription != null && clase.classDescription!.isNotEmpty)
+            if (clase.classDescription != null &&
+                clase.classDescription!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
@@ -426,13 +451,13 @@ class ClassCard extends StatelessWidget {
                   ),
                 ),
               ),
-            
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today, color: Colors.yellow, size: 16),
+                    const Icon(Icons.calendar_today,
+                        color: Colors.yellow, size: 16),
                     const SizedBox(width: 6),
                     Text(
                       'Disponibilidad:',
@@ -457,7 +482,6 @@ class ClassCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
