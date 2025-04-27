@@ -53,6 +53,8 @@ class _ClassesScreenState extends State<ClassesScreen> {
     }
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -281,7 +283,7 @@ const SizedBox(height: 12),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                 ),
                 onPressed: () {
-                  // Navegar al detalle de la clase
+                  
                 },
                 child: Text(
                   'Tomar Clase',

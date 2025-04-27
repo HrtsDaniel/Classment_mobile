@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:classment_mobile/models/class_model.dart';
 import 'package:classment_mobile/models/curso_model.dart';
+import 'package:classment_mobile/models/enrollment_model.dart';
 import 'package:classment_mobile/models/school_model.dart';
 import 'package:classment_mobile/models/user_model.dart';
 import 'package:logger/logger.dart';
@@ -364,6 +365,72 @@ class ApiService {
   } catch (e) {
     print('Error: $e');
     return [];
+  }
+ }
+
+ static Future<Enrollment?> scheduleClass({
+  required String userId,
+  required String courseId,
+  required String startDate,
+  required String endDate,
+  String? userName,
+  String? userEmail,
+}) async {
+  final url = Uri.parse('$_baseUrl/api/enrollments/schedule-class');
+
+  // Verificar que ningún campo requerido esté vacío
+  if (userId.isEmpty || courseId.isEmpty || startDate.isEmpty || endDate.isEmpty) {
+    print('Error: Campos requeridos vacíos');
+    print('userId: $userId');
+    print('courseId: $courseId');
+    print('startDate: $startDate');
+    print('endDate: $endDate');
+    throw Exception('Todos los campos son obligatorios y no pueden estar vacíos');
+  }
+
+  // El servidor parece esperar también userName y userEmail como obligatorios
+  // aunque en tu función son opcionales
+  final Map<String, dynamic> requestBody = {
+    "user_id": userId,
+    "course_id": courseId,
+    "start_date": startDate,
+    "end_date": endDate,
+    "user_name": userName ?? "Usuario", // Valor por defecto si es nulo
+    "user_email": userEmail ?? "usuario@example.com", // Valor por defecto si es nulo
+  };
+
+  print('Enviando solicitud a: $url');
+  print('Datos enviados: ${jsonEncode(requestBody)}');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(requestBody),
+    );
+
+    print('Código de respuesta: ${response.statusCode}');
+    print('Cuerpo de respuesta: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      if (jsonData['success'] == true) {
+        return Enrollment.fromJson(jsonData['data']);
+      } else {
+        throw Exception('API returned success: false - ${jsonData['message'] ?? "No message"}');
+      }
+    } else {
+      String errorDetail = "Sin detalles";
+      try {
+        final errorJson = json.decode(response.body);
+        errorDetail = errorJson['message'] ?? errorJson['error'] ?? "Sin detalles";
+      } catch (_) {}
+      
+      throw Exception('Error HTTP ${response.statusCode} - $errorDetail');
+    }
+  } catch (e) {
+    print('Error al agendar clase: $e');
+    rethrow;
   }
 }
 }
