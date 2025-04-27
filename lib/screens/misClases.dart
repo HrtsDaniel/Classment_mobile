@@ -372,29 +372,7 @@ class ClassCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Acción para cancelar clase
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.shade900.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.red.shade400),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: Text(
-                      'CANCELAR CLASE',
-                      style: GoogleFonts.montserrat(
-                        color: Colors.red.shade400,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
+              
               ],
             ),
           ),
