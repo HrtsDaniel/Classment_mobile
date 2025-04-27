@@ -5,6 +5,8 @@ import 'package:classment_mobile/widgets/navbar.dart';
 import 'package:classment_mobile/services/api_service.dart';
 import 'package:classment_mobile/models/class_model.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer' as developer; // Para logging detallado
 
 class ClassesScreen extends StatefulWidget {
   final String courseId;
@@ -23,15 +25,19 @@ class ClassesScreen extends StatefulWidget {
 class _ClassesScreenState extends State<ClassesScreen> {
   late Future<List<ClassModel>> _classesFuture;
   bool _isLoading = true;
+  bool _isEnrolling = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
+    developer.log('Inicializando ClassesScreen', name: 'ClassesScreen');
     _fetchClasses();
   }
 
   Future<void> _fetchClasses() async {
+    developer.log('Obteniendo clases para el curso ${widget.courseId}', name: 'ClassesScreen');
+    
     setState(() {
       _isLoading = true;
       _error = null;
@@ -39,10 +45,13 @@ class _ClassesScreenState extends State<ClassesScreen> {
 
     try {
       final classes = await ApiService.getClassesByCourseId(widget.courseId);
+      developer.log('Clases obtenidas: ${classes.length}', name: 'ClassesScreen');
+      
       setState(() {
         _classesFuture = Future.value(classes);
       });
     } catch (e) {
+      developer.log('Error al obtener clases: $e', name: 'ClassesScreen', error: e);
       setState(() {
         _error = e.toString();
       });
@@ -53,7 +62,177 @@ class _ClassesScreenState extends State<ClassesScreen> {
     }
   }
 
+  Future<void> _enrollToClass(BuildContext context, ClassModel classItem) async {
+    developer.log('Intentando inscribir a clase: ${classItem.classId}', name: 'ClassesScreen');
+    
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+    
+    developer.log('UserID obtenido de SharedPreferences: $userId', name: 'ClassesScreen');
+    
+    if (userId == null || userId.isEmpty) {
+      developer.log('No se encontró userId válido', name: 'ClassesScreen');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo identificar al usuario. Por favor inicie sesión nuevamente.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    // Validar si la clase ya pasó
+    if (classItem.classDate.isBefore(DateTime.now())) {
+      developer.log('Clase ya pasó: ${classItem.classDate}', name: 'ClassesScreen');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Esta clase ya ocurrió el ${DateFormat('dd/MM/yyyy').format(classItem.classDate)}'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Calcular fecha de fin
+    final endDate = classItem.classDate.add(Duration(minutes: classItem.duration));
+    developer.log('Fecha de inicio: ${classItem.classDate}, Fecha de fin: $endDate', name: 'ClassesScreen');
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2A2A2A),
+        title: Text(
+          'Confirmar inscripción',
+          style: GoogleFonts.montserrat(color: Colors.white),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Curso: ${widget.courseName}',
+              style: GoogleFonts.roboto(color: Colors.white70),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Clase: ${classItem.classTitle}',
+              style: GoogleFonts.roboto(color: Colors.white70),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Fecha: ${DateFormat('EEE, d MMM y - hh:mm a').format(classItem.classDate)}',
+              style: GoogleFonts.roboto(color: Colors.white70),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Duración: ${classItem.duration} minutos',
+              style: GoogleFonts.roboto(color: Colors.white70),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              developer.log('Inscripción cancelada por el usuario', name: 'ClassesScreen');
+              Navigator.pop(context);
+            },
+            child: Text(
+              'Cancelar',
+              style: GoogleFonts.montserrat(color: Colors.yellow[600]),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.yellow[600],
+            ),
+            onPressed: () async {
+              developer.log('Usuario confirmó inscripción', name: 'ClassesScreen');
+              Navigator.pop(context);
+              await _processEnrollment(context, userId, classItem, endDate);
+            },
+            child: Text(
+              'Confirmar',
+              style: GoogleFonts.montserrat(color: Colors.black),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _processEnrollment(
+  BuildContext context,
+  String userId,
+  ClassModel classItem,
+  DateTime endDate,
+) async {
+  developer.log('Procesando inscripción...', name: 'ClassesScreen');
   
+  setState(() => _isEnrolling = true);
+  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  
+  try {
+    developer.log('Enviando datos al servidor...', name: 'ClassesScreen');
+    
+    await ApiService.scheduleClass(
+      userId: userId,
+      courseId: widget.courseId,
+      startDate: classItem.classDate,
+      endDate: endDate,
+    );
+
+    // Mostrar mensaje de éxito
+    scaffoldMessenger.showSnackBar(
+      const SnackBar(
+        content: Text('✅ Inscripción exitosa'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 3),
+      ),
+    );
+
+    // Actualizar la lista de clases
+    await _fetchClasses();
+    
+  } on Exception catch (e) {
+    // Manejar solo si el mensaje no contiene "exitosa"
+    if (!e.toString().toLowerCase().contains('exitosa')) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('❌ Error: ${_getUserFriendlyError(e)}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      // Si el mensaje contiene "exitosa", mostrarlo como éxito
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('✅ ${e.toString().replaceFirst('Exception: ', '')}'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      await _fetchClasses();
+    }
+  } finally {
+    setState(() => _isEnrolling = false);
+  }
+}
+
+  String _getUserFriendlyError(dynamic error) {
+    developer.log('Procesando error: $error', name: 'ClassesScreen');
+    
+    if (error.toString().contains('No hay token de autenticación')) {
+      return 'Su sesión ha expirado. Por favor inicie sesión nuevamente.';
+    } else if (error.toString().contains('Error HTTP 409')) {
+      return 'Ya está inscrito en esta clase o hay un conflicto de horario.';
+    } else if (error.toString().contains('Error HTTP')) {
+      return 'Problema de conexión con el servidor. Intente nuevamente.';
+    } else if (error.toString().contains('SocketException')) {
+      return 'No hay conexión a internet. Verifique su conexión.';
+    }
+    return error.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +250,9 @@ class _ClassesScreenState extends State<ClassesScreen> {
             ),
           ),
           
-          // Contenido principal
           Column(
             children: [
               const CustomNavbar(height: 80),
-              
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: _fetchClasses,
@@ -105,7 +282,6 @@ class _ClassesScreenState extends State<ClassesScreen> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Manejo de estados
                         if (_isLoading)
                           const Center(child: CircularProgressIndicator(color: Colors.yellow))
                         else if (_error != null)
@@ -150,7 +326,11 @@ class _ClassesScreenState extends State<ClassesScreen> {
                                   itemCount: snapshot.data!.length,
                                   itemBuilder: (context, index) {
                                     final clase = snapshot.data![index];
-                                    return ClassCard(clase: clase);
+                                    return ClassCard(
+                                      clase: clase,
+                                      onEnroll: () => _enrollToClass(context, clase),
+                                      isEnrolling: _isEnrolling,
+                                    );
                                   },
                                 );
                               }
@@ -173,8 +353,15 @@ class _ClassesScreenState extends State<ClassesScreen> {
 
 class ClassCard extends StatelessWidget {
   final ClassModel clase;
+  final VoidCallback onEnroll;
+  final bool isEnrolling;
 
-  const ClassCard({super.key, required this.clase});
+  const ClassCard({
+    super.key,
+    required this.clase,
+    required this.onEnroll,
+    required this.isEnrolling,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -240,36 +427,36 @@ class ClassCard extends StatelessWidget {
                 ),
               ),
             
-          Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    Row(
-      children: [
-        const Icon(Icons.calendar_today, color: Colors.yellow, size: 16),
-        const SizedBox(width: 6),
-        Text(
-          'Disponibilidad:',
-          style: GoogleFonts.roboto(
-            color: Colors.white70,
-            fontSize: 13,
-          ),
-        ),
-      ],
-    ),
-    Padding(
-      padding: const EdgeInsets.only(left: 22, top: 4),
-      child: Text(
-        'A partir del ${DateFormat('EEE, d MMM y').format(clase.classDate)} a las ${DateFormat('hh:mm a').format(clase.classDate)}',
-        style: GoogleFonts.roboto(
-          color: Colors.white,
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    ),
-  ],
-),
-const SizedBox(height: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today, color: Colors.yellow, size: 16),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Disponibilidad:',
+                      style: GoogleFonts.roboto(
+                        color: Colors.white70,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 22, top: 4),
+                  child: Text(
+                    'A partir del ${DateFormat('EEE, d MMM y').format(clase.classDate)} a las ${DateFormat('hh:mm a').format(clase.classDate)}',
+                    style: GoogleFonts.roboto(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
             
             SizedBox(
               width: double.infinity,
@@ -282,16 +469,20 @@ const SizedBox(height: 12),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                 ),
-                onPressed: () {
-                  
-                },
-                child: Text(
-                  'Tomar Clase',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                onPressed: isEnrolling ? null : onEnroll,
+                child: isEnrolling
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(color: Colors.black),
+                      )
+                    : Text(
+                        'Tomar Clase',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
           ],
