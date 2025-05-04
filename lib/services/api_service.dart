@@ -470,4 +470,41 @@ class ApiService {
       rethrow;
     }
   }
+
+  static Future<bool> deleteEnrollment(String enrollmentId) async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
+
+  if (token == null) {
+    throw Exception('No autenticado. Por favor inicie sesión.');
+  }
+
+  final url = Uri.parse('$_baseUrl/api/enrollments');
+
+  try {
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'enrollment_id': enrollmentId,
+      }),
+    );
+
+    print('Respuesta de la API: ${response.body}');
+
+    if (response.statusCode == 200) {
+      print('Inscripción eliminada exitosamente');
+      return true;
+    } else {
+      print('Error al eliminar la inscripción: ${response.body}');
+      return false;
+    }
+  } catch (e) {
+    print('Error en deleteEnrollment: $e');
+    return false;
+  }
+}
 }

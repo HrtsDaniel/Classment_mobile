@@ -51,40 +51,69 @@ exports.scheduleClass = async (req, res) => {
 
 // Controlador para obtener la información de las clases de un usuario
 exports.getUserInfo = async (req, res) => {
-    const { userId } = req.params;
+  const { userId } = req.params;
+
+  try {
+    // Consulta a la base de datos con relaciones
+    const userClasses = await Enrollment.findAll({
+      where: { user_id: userId },
+      attributes: ["enrollment_id", "start_date", "end_date"], // Incluye el enrollment_id
+      include: [
+        {
+          model: Course,
+          as: "course",
+          attributes: ["course_name"], // Nombre del curso
+          include: [
+            {
+              model: School,
+              as: "school",
+              attributes: ["school_name", "school_address"], // Nombre y dirección de la escuela
+            },
+          ],
+        },
+      ],
+    });
+
+    if (userClasses.length === 0) {
+      return res.status(404).json({ message: "No se encontraron clases para este usuario." });
+    }
+
+    // Responder con los datos
+    res.status(200).json({
+      success: true,
+      data: userClasses,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener la información del usuario." });
+  }
+};
+
+  exports.deleteEnrollment = async (req, res) => {
+    const { enrollment_id } = req.body;
+  
+    // Validación de campos
+    if (!enrollment_id) {
+      return res.status(400).json({ message: "El enrollment_id es obligatorio." });
+    }
   
     try {
-      // Consulta a la base de datos con relaciones
-      const userClasses = await Enrollment.findAll({
-        where: { user_id: userId },
-        attributes: ["start_date", "end_date"], // Fechas de la tabla Enrollment
-        include: [
-          {
-            model: Course,
-            as: "course",
-            attributes: ["course_name"], // Nombre del curso
-            include: [
-              {
-                model: School,
-                as: "school",
-                attributes: ["school_name", "school_address"], // Nombre y dirección de la escuela
-              },
-            ],
-          },
-        ],
-      });
+      // Buscar la inscripción en la base de datos
+      const enrollment = await Enrollment.findByPk(enrollment_id); // Busca por la clave primaria
   
-      if (userClasses.length === 0) {
-        return res.status(404).json({ message: "No se encontraron clases para este usuario." });
+      if (!enrollment) {
+        return res.status(404).json({ message: "No se encontró la inscripción especificada." });
       }
   
-      // Responder con los datos
+      // Eliminar la inscripción
+      await enrollment.destroy();
+  
       res.status(200).json({
         success: true,
-        data: userClasses,
+        message: "Inscripción eliminada exitosamente.",
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Error al obtener la información del usuario." });
+      res.status(500).json({ message: "Error al eliminar la inscripción." });
     }
   };

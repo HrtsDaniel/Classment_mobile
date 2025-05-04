@@ -1,11 +1,11 @@
 class Enrollment {
-  final String enrollmentId; // Añadir ID de la inscripción
+  final String enrollmentId; 
   final String userId;
   final String courseId;
-  final DateTime startDate; // Usar DateTime en lugar de String
+  final DateTime startDate; 
   final DateTime endDate;
   final String status;
-  final DateTime createdAt; // Para tracking
+  final DateTime createdAt; 
   final DateTime updatedAt;
 
   Enrollment({
@@ -14,7 +14,7 @@ class Enrollment {
     required this.courseId,
     required this.startDate,
     required this.endDate,
-    this.status = 'active', // Valor por defecto
+    this.status = 'active', 
     required this.createdAt,
     required this.updatedAt,
   });
