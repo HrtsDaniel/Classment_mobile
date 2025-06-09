@@ -40,7 +40,7 @@ class _MisClasesState extends State<MisClases> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = 'No tienes clases programadas';
         _isLoading = false;
       });
     }
@@ -50,7 +50,6 @@ class _MisClasesState extends State<MisClases> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getString('userId');
-      
 
       if (userId != null) {
         final inscripciones = await ApiService.getUserEnrollmentsInfo(userId);
@@ -59,7 +58,7 @@ class _MisClasesState extends State<MisClases> {
         throw Exception('Usuario no identificado');
       }
     } catch (e) {
-      throw Exception('Error al obtener las inscripciones: $e');
+      throw Exception('No tienes clases programadas');
     }
   }
 
@@ -118,7 +117,6 @@ class _MisClasesState extends State<MisClases> {
       drawer: const SideBar(),
       body: Stack(
         children: [
-          // Fondo con gradiente
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -128,8 +126,6 @@ class _MisClasesState extends State<MisClases> {
               ),
             ),
           ),
-
-          // Contenido principal
           Column(
             children: [
               const CustomNavbar(height: 80),
@@ -172,20 +168,39 @@ class _MisClasesState extends State<MisClases> {
                             else if (_error != null)
                               Center(
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.error_outline,
-                                        color: Colors.red, size: 50),
-                                    const SizedBox(height: 16),
+                                    const Icon(Icons.calendar_today,
+                                        size: 60, color: Colors.grey),
+                                    const SizedBox(height: 20),
                                     Text(
                                       _error!,
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.montserrat(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                      ),
                                     ),
-                                    const SizedBox(height: 16),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      'Agenda tu primera clase',
+                                      style: GoogleFonts.montserrat(
+                                        color: Colors.grey,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
                                     ElevatedButton(
                                       onPressed: _refreshInscripciones,
-                                      child: const Text('Reintentar'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.yellow.shade700,
+                                        foregroundColor: Colors.black,
+                                      ),
+                                      child: Text(
+                                        'Reintentar',
+                                        style: GoogleFonts.montserrat(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -202,8 +217,29 @@ class _MisClasesState extends State<MisClases> {
                                       ),
                                     );
                                   } else if (snapshot.hasError) {
-                                    return Center(
-                                      child: Text('Error: ${snapshot.error}'),
+                                    return Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.calendar_today,
+                                            size: 60, color: Colors.grey),
+                                        const SizedBox(height: 20),
+                                        Text(
+                                          'No tienes clases agendadas',
+                                          style: GoogleFonts.montserrat(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Text(
+                                          'Agenda tu primera clase',
+                                          style: GoogleFonts.montserrat(
+                                            color: Colors.grey,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
                                     );
                                   } else if (snapshot.hasData) {
                                     final inscripciones = snapshot.data!;

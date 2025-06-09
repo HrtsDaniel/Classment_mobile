@@ -463,11 +463,11 @@ class ApiService {
             .toList();
       } else {
         throw Exception(
-            'Error al obtener inscripciones: Por favor Inscribete a una clase para ver tus proximas clases agendadas');
+            'No tienes clases programadas');
       }
     } catch (e) {
       print('Error en getUserEnrollmentsInfo: $e');
-      rethrow;
+      throw Exception('No tienes clases programadas');
     }
   }
 
