@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 final logger = Logger();
 
 class ApiService {
-  static const String _baseUrl = 'http://192.168.0.8:5000';
+  static const String _baseUrl = 'http://192.168.0.12:5000';
 
   // USUARIOS
   static Future<bool> registrarUsuario(
@@ -451,13 +451,13 @@ class ApiService {
       final response = await http.get(url);
 
       print(
-          'Respuesta de la API: ${response.body}'); // Verifica la respuesta completa
+          'Respuesta de la API: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List enrollmentsJson = data['data'] ?? [];
         print(
-            'Datos procesados: $enrollmentsJson'); // Verifica los datos procesados
+            'Datos procesados: $enrollmentsJson');
         return enrollmentsJson
             .map((json) => UserEnrollmentInfo.fromJson(json))
             .toList();
